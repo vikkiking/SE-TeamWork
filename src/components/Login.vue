@@ -1,6 +1,7 @@
 <template>
 <div class="login">
-  登录
+  <img :src="require('../assets/login.png')">
+  <h2 >微信扫码登录</h2>
 </div>
 </template>
 
@@ -10,6 +11,11 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style scoped lang="scss">
+.login{
+  //background-color: rgb(2, 167, 240);
+  h2{
+    //color: white;
+  }
+}
 </style>
