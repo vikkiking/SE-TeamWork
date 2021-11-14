@@ -2,7 +2,7 @@
   <md-card class="search-card" @click.native="checkDetail(data.id)">
     <md-card-area md-inset>
       <md-card-media>
-        <img :src="data.cover" :alt="data.drugTitle" style="width: 150px">
+        <img :src="data.cover" :alt="data.drugTitle" style="width: 150px;height: 150px">
       </md-card-media>
       <md-card-header>
         <div class="md-subhead">
@@ -41,13 +41,11 @@ export default {
 <style scoped lang="scss">
 .search-card {
   width: 150px;
-
   .md-subhead {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
   margin-bottom: 20px;
 }
 </style>

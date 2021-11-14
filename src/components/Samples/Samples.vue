@@ -1,23 +1,22 @@
 <template>
-  <md-content class=" md-layout md-gutter md-scrollbar"
-              v-if="!loading">
+  <md-content class=" md-layout md-gutter md-scrollbar">
     <thumb v-for="(item,i) in list"
-           :url="item.url"
+           :url.sync="item.url"
+           v-show="list[i]"
            @click.native="openChart(i)"
            class="md-layout-item"
-           :title="item.title"
+           :title.sync="item.title"
            :key="i"/>
     <md-dialog :md-active.sync="show"
                :md-fullscreen="false">
-      <div v-show="list[cur].type!=='html'">
+      <template v-if="list[cur].type!=='html'">
         <md-dialog-title>{{ list[cur].title }}</md-dialog-title>
         <v-chart id="chart" :option.sync="option"
                  autoresize/>
-      </div>
-      <iframe :src="html" v-show="list[cur].type==='html'"></iframe>
+      </template>
+      <iframe :src="html" v-else></iframe>
     </md-dialog>
   </md-content>
-  <md-progress-spinner md-mode="indeterminate" v-else></md-progress-spinner>
 </template>
 
 <script>
@@ -47,8 +46,10 @@ function getRandomColor() {
   })('');
 }
 
+let pre = 'http://yuneko.me/temp/'
+// let pre = '/temp/'
 export default {
-  name: "Database",
+  name: "Sample",
   // eslint-disable-next-line vue/no-unused-components
   components: {Thumb, VChart},
   provide: {
@@ -57,91 +58,78 @@ export default {
   data() {
     return {
       html: null,
-      loading: false,
       list: [],
       show: false,
       cur: 0,
-      pre:'yuneko.me/temp/',
+      // pre:'http://yuneko.me/temp/',
       paths: [
-        this.pre+'三九感冒灵.html',
-        this.pre+'乐宁盐酸雷尼替丁胶囊150mg30粒.html',
-        this.pre+'九芝堂六味地黄地丸360丸.html',
-        this.pre+'云南白药气雾剂 85g+30g .html',
-        this.pre+'京都念慈菴蜜炼川贝枇杷膏300ml .html',
-        this.pre+'仁和 桑菊感冒片 36片.html',
-        this.pre+'仁和诺氟沙星胶囊0.1g24粒.html',
-        this.pre+'仁和阿莫西林胶囊0.25g40粒.html',
-        this.pre+'喇叭正露丸100粒 .html',
-        this.pre+'太极藿香正气液口服液正气水10支装合剂.html',
-        this.pre+'康恩贝肠炎宁48片胃药急慢性肠胃炎.html',
-        this.pre+'拜阿司匹灵阿司匹林肠溶片100mg.html',
-        this.pre+'敬修堂跌打万花油25ml.html',
-        this.pre+'杜蕾斯避孕套-1.html',
-        this.pre+'毕诺曲安奈德鼻喷雾剂120.html',
-        this.pre+'洛赛克 奥美拉唑镁肠溶片 20mg14片.html',
-        this.pre+'珍视明滴眼液.html',
-        this.pre+'白云山 小柴胡颗粒 10克10袋.html',
-        this.pre+'白云山红霉素软膏.html',
-        this.pre+'芬必得 布洛芬缓释胶囊 0.3g24粒.html',
+        pre + '三九感冒灵.html',
+        pre + '乐宁盐酸雷尼替丁胶囊150mg30粒.html',
+        pre + '九芝堂六味地黄地丸360丸.html',
+        pre + '云南白药气雾剂 85g+30g .html',
+        pre + '京都念慈菴蜜炼川贝枇杷膏300ml .html',
+        pre + '仁和 桑菊感冒片 36片.html',
+        pre + '仁和诺氟沙星胶囊0.1g24粒.html',
+        pre + '仁和阿莫西林胶囊0.25g40粒.html',
+        pre + '喇叭正露丸100粒 .html',
+        pre + '太极藿香正气液口服液正气水10支装合剂.html',
+        pre + '康恩贝肠炎宁48片胃药急慢性肠胃炎.html',
+        pre + '拜阿司匹灵阿司匹林肠溶片100mg.html',
+        pre + '敬修堂跌打万花油25ml.html',
+        pre + '杜蕾斯避孕套-1.html',
+        pre + '毕诺曲安奈德鼻喷雾剂120.html',
+        pre + '洛赛克 奥美拉唑镁肠溶片 20mg14片.html',
+        pre + '珍视明滴眼液.html',
+        pre + '白云山 小柴胡颗粒 10克10袋.html',
+        pre + '白云山红霉素软膏.html',
+        pre + '芬必得 布洛芬缓释胶囊 0.3g24粒.html',
       ],
-      option: null,
+      option: {},
       data: null,
       preName: ['药名', '规格', '供货价', '销售价']
     }
   },
   created() {
-    this.loading = true
-    new Promise((resolve => {
-      for (let i = 0; i < this.paths.length; i++) {
-        let ttt = this.createHtml(this.paths[i])
-        ttt.onload = () => {
+    for (let i = 0; i < this.paths.length; i++) {
+      this.list.push({
+        title: /*'折线图' + (i + 1)*/this.paths[i].match(/(?<=\/)[^/]+(?=(.html))/g)[0],
+        type: 'html',
+        path: this.paths[i]
+      })
+    }
+    for (let i = 0; i < this.paths.length; i++) {
+      let ttt = this.createHtml(this.paths[i])
+      ttt.onload = () => {
+        setTimeout(() => {
           html2canvas(ttt.contentWindow.document.getElementsByTagName('body')[0], {
             backgroundColor: null
           }).then(canvas => {
             document.body.removeChild(ttt)
             let url = canvas.toDataURL('image/png')
-            this.list.push({
-              url: url,
-              title: /*'折线图' + (i + 1)*/this.paths[i].match(/(?<=\/)[^/]+(?=(.html))/g)[0],
-              type: 'html',
-              path: this.paths[i]
-            })
-            if (i + 1 === this.paths.length) resolve()
+            this.$set(this.list[i], 'url', url)
           })
-        }
-        document.body.appendChild(ttt)
+        }, 1000)
       }
-    })).then(() => {
-      this.loading = false
-    })
+      document.body.appendChild(ttt)
+    }
     this.list.push({
       url: /*document.getElementById('chart').getElementsByTagName('canvas')[0].toDataURL('image/png')*/'https://avatar-static.segmentfault.com/237/680/2376808203-5d89dfc407f98_huge128',
       title: '二甲双胍',
       type: 'sunburst'
     })
+
   },
   methods: {
     createHtml(path) {
       let iframe = document.createElement('iframe')
       iframe.src = path
-      iframe.id = 'iframe-temp'
+      iframe.id = 'iframe-temp' + path
       iframe.style.visibility = 'hidden'
+      // iframe.style.display = 'none'
       return iframe
     },
     loadHtml(path) {
       this.html = path
-      /* if (path && path.length > 0) {
-         this.loading = true
-         getHtml(path, {
-           accept: 'text/html,text/plain'
-         }).then(res => {
-           this.loading = false
-           this.html = res.data
-         }).catch(() => {
-           this.loading = false
-           this.html = '加载失败'
-         })
-       }*/
     },
     clean(str) {
       str = (str.match(/[0-9.]+(\D+\*\d+.|.)\/./g) !== null ? str.match(/[0-9.]+(\D+\*\d+.|.)\/./g).pop() : (str.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g) ? str.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g).pop() : '暂无规格')).replace(/[^.*\d]/g, '')
@@ -184,16 +172,17 @@ export default {
           this.data = []
           for (let item in temp) {
             this.data.push({
-              name: this.preName[0] + ': ' + item,
+              name: /*this.preName[0] + ': ' +*/ item,
               itemStyle: {
-                color: getRandomColor()
+                // color: getRandomColor()
               },
               value: 1,
               children: this.getNext(temp[item], item)
             })
           }
-          this.option = this.createSunburst(this.data)
-          console.log(this.option)
+          // this.option = this.createSunburst(this.data)
+          this.option = Object.assign({}, this.option, this.createSunburst(this.data))
+          // console.log(this.option)
         })
       }
     },
@@ -202,26 +191,30 @@ export default {
       //从内到外依次为药品名、规格、进货价+产商、销售价
       let children = []
       if (depth === 3) {
+        // eslint-disable-next-line no-unused-vars
         let average = 0
         for (let v in data)//销售价
           average += Number(v)
         average /= Object.keys(data).length
         average = average.toFixed(2)
         children.push({
-          name: '平均' + this.preName[depth] + average,
+          name: /*'平均' + this.preName[depth] +*/ average,
           // value: average,
           value: 1,
           itemStyle: {
-            color: getRandomColor()
+            // color: getRandomColor()
           }
         })
         return children
       } else {
         for (let v in data) {
           children.push({
-            name: this.preName[depth] + v,
+            name: /*this.preName[depth] + */v,
             // value: depth === 1 ? 1 : v,
             value: 1,
+            itemStyle: {
+              // color: getRandomColor()
+            },
             children: this.getNext(data[v], v, depth + 1)
           })
         }
@@ -245,38 +238,47 @@ export default {
             {},
             {
               r0: '15%',
-              r: '35%',
+              r: '40%',
               itemStyle: {
-                borderWidth: 2
+                borderWidth: 1
               },
               label: {
                 rotate: 'tangential'
               }
             },
             {
-              r0: '35%',
-              r: '70%',
+              r0: '40%',
+              r: '60%',
               label: {
-                align: 'right'
+                // align: 'right'
+                rotate: 'tangential'
+              },
+              itemStyle: {
+                borderWidth: 1
               }
             },
             {
               r0: '60%',
-              r: '80%',
+              r: '95%',
               label: {
-                align: 'right'
+                // align: 'center'
+                rotate: 'tangential'
+              },
+              itemStyle: {
+                borderWidth: 1
               }
             },
             {
-              r0: '80%',
-              r: '90%',
+              r0: '95%',
+              r: '100%',
               label: {
                 position: 'outside',
+                rotate: 'tangential',
                 padding: 3,
                 silent: false
               },
               itemStyle: {
-                borderWidth: 3
+                borderWidth: 1
               }
             }
           ]
@@ -303,11 +305,19 @@ export default {
   }
 }
 
+.md-dialog-title {
+  &:after {
+    content: '从内到外分别为药名、规格、供货价、平均销售价';
+    font-size: xx-small;
+    color: #999999;
+  }
+}
 
 @media (max-width: 600px) {
-  #chart {
-    height: 80vh;
-  }
+  /* #chart {
+     height: 80vh;
+     width: auto;
+   }*/
   .md-dialog-title {
     &:after {
       content: '(横屏体验更好)';
@@ -318,12 +328,19 @@ export default {
 }
 
 @media (min-width: 601px) {
-
+  /* #chart {
+     width: 80vw;
+     height: 80vh;
+   }*/
+  .echarts {
+    width: 80vw;
+    height: 80vh;
+  }
+  .echarts > div {
+    width: 80vw;
+    height: 80vh;
+  }
   .md-dialog-container {
-    #chart {
-      width: 80vw;
-      height: 80vh;
-    }
     iframe {
       width: 620px;
       height: 420px;

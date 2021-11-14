@@ -1,27 +1,17 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from "../components/Home";
-import Consult from "../components/Consult";
-import About from "../components/About";
 import JoinUs from "../components/JoinUs";
 import Login from "../components/Login";
 import SearchResult from "../components/SearchResult/SearchResult";
 import Detail from "../components/Detail";
-import Database from "../components/Database/Database";
+import Sample from "../components/Samples/Samples";
 
 Vue.use(VueRouter)
 const routes = [
     {
         path: '/',
         component: Home
-    },
-    {
-        path: '/consult',
-        component: Consult
-    },
-    {
-        path: '/about',
-        component: About
     },
     {
         path: '/joinus',
@@ -36,8 +26,8 @@ const routes = [
         path: '/detail',
         component: Detail
     }, {
-        path: '/database',
-        component: Database
+        path: '/sample',
+        component: Sample
     }
 ]
 const router = new VueRouter({

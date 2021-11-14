@@ -8,18 +8,33 @@
                style="margin:0 30px">
           <md-tabs class="md-primary" md-sync-route>
             <md-tab id="tab-home" md-label="首页" to="/" exact></md-tab>
-            <md-tab id="tab-database" md-label="数据库" to="/database" exact></md-tab>
-            <md-tab id="tab-consult" md-label="咨询" to="/consult"></md-tab>
-            <md-tab id="tab-about" md-label="关于" to="/about"></md-tab>
+            <md-tab id="tab-samples" md-label="示例" to="/sample" exact></md-tab>
+            <md-tab id="tab-about" md-label="关于" href="https://github.com/Jimase/Software_Engineering_Team_10"></md-tab>
             <md-tab id="tab-joinus" md-label="加入我们" to="/joinus"></md-tab>
           </md-tabs>
         </div>
         <div class="md-toolbar-section-end">
           <md-button class="md-icon-button"
                      style="margin-right: 10px"
-                     @click="showSidepanel = true">
+                     @mouseover="showSidepanel = true">
             <md-icon class="md-size-2x">account_circle</md-icon>
           </md-button>
+
+          <!--          <md-speed-dial class="md-right" md-direction="bottom">
+                      <md-speed-dial-target class="md-primary">
+                        <md-icon>account_circle</md-icon>
+                      </md-speed-dial-target>
+
+                        <md-speed-dial-content>
+                          <md-button class="md-list-action" to="/login">微信登录</md-button>
+                        </md-speed-dial-content>
+                        <md-speed-dial-content>
+                          <md-button class="md-list-action">设置</md-button>
+                        </md-speed-dial-content>
+                        <md-speed-dial-content>
+                          <md-button class="md-list-action">退出</md-button>
+                        </md-speed-dial-content>
+                    </md-speed-dial>-->
         </div>
         <!--        </div>-->
 
@@ -44,6 +59,8 @@
           </md-list-item>
         </md-list>
       </md-app-drawer>
+
+
       <md-app-content>
         <md-snackbar md-position="center"
                      :md-duration="duration"
@@ -62,7 +79,7 @@
           >
             <label>搜索...</label>
             <md-input v-model="selectedWord"
-            @keyup.enter="search(selectedWord)"></md-input>
+                      @keyup.enter="search(selectedWord)"></md-input>
           </md-field>
           <!--            </div>-->
           <md-button class="md-icon-button"
@@ -119,7 +136,10 @@ export default {
         // localStorage.setItem('search-history', JSON.stringify(this.keywords))
         this.$router.push({
           path: '/search',
-          query: {q: encodeURI(q)}
+          query: {
+            q: encodeURI(q),
+            page: 1
+          }
         })
       } else
         this.active = true
@@ -136,6 +156,7 @@ export default {
 
 body {
   margin: 0;
+  overflow: hidden;
 }
 
 #app {
