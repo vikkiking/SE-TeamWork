@@ -13,14 +13,14 @@
             <md-tab id="tab-joinus" md-label="加入我们" to="/joinus"></md-tab>
           </md-tabs>
         </div>
-        <div class="md-toolbar-section-end">
+<!--        <div class="md-toolbar-section-end">
           <md-button class="md-icon-button"
                      style="margin-right: 10px"
                      @mouseover="showSidepanel = true">
             <md-icon class="md-size-2x">account_circle</md-icon>
           </md-button>
 
-          <!--          <md-speed-dial class="md-right" md-direction="bottom">
+          &lt;!&ndash;          <md-speed-dial class="md-right" md-direction="bottom">
                       <md-speed-dial-target class="md-primary">
                         <md-icon>account_circle</md-icon>
                       </md-speed-dial-target>
@@ -34,8 +34,8 @@
                         <md-speed-dial-content>
                           <md-button class="md-list-action">退出</md-button>
                         </md-speed-dial-content>
-                    </md-speed-dial>-->
-        </div>
+                    </md-speed-dial>&ndash;&gt;
+        </div>-->
         <!--        </div>-->
 
 
@@ -168,11 +168,15 @@ body {
 }
 
 .md-app {
+  background-color: #f8f9fa;
+
   height: 100vh;
   border: 1px solid rgba(#000, .12);
 
-  .md-tabs {
-    flex-wrap: wrap;
+  @media (max-width: 600px) {
+    .md-tabs-navigation > a {
+      min-width: fit-content;
+    }
   }
 
   .md-app-toolbar {

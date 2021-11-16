@@ -1,60 +1,65 @@
 <template>
   <div class="search-result">
     <div>
-      <div class="md-layout md-gutter filter">
-        <div class="md-layout-item"
-             :key="i"
-             v-for="(item,i) in chips">
-          <md-field>
-            <label :for="i">{{ item.name }}</label>
-            <md-select :id="i"
-                       v-model="item.select"
-                       :name="item.name"
-                       multiple>
-              <md-option v-for="(chip,j) in item.list"
-                         :key="j"
-                         :value="j"
-              >{{ chip }}
-              </md-option>
-            </md-select>
-          </md-field>
-        </div>
-      </div>
       <md-progress-spinner v-if="loading"
                            md-mode="indeterminate"></md-progress-spinner>
       <template v-else>
         <md-content class="md-layout md-gutter md-alignment-center md-scrollbar search-panel" v-if="getList.length>0">
-          <card v-for="(item, i) in getList"
-                :key="i"
-                img="/temp.jpeg"
-                :data="item"/>
+          <div class="md-layout md-gutter filter">
+            <div class="md-layout-item"
+                 :key="i"
+                 v-for="(item,i) in chips">
+              <md-field>
+                <label :for="i">{{ item.name }}</label>
+                <md-select :id="i"
+                           v-model="item.select"
+                           :name="item.name"
+                           multiple>
+                  <md-option v-for="(chip,j) in item.list"
+                             :key="j"
+                             :value="j"
+                  >{{ chip }}
+                  </md-option>
+                </md-select>
+              </md-field>
+            </div>
+          </div>
+          <template>
+            <card v-for="(item, i) in getList"
+                  :key="i"
+                  img="/temp.jpeg"
+                  :data="item"/>
+          </template>
+          <div class="md-toolbar-row">
+            <md-button class="md-icon-button"
+                       v-if="page.cur>1"
+                       @click="page.cur=page.cur>1?(page.cur-1):1">
+              <md-icon>arrow_left</md-icon>
+            </md-button>
+            <md-field style="width: 5em">
+              <label>1-{{ page.maxPage }}</label>
+              <md-input v-model="inputPage"
+                        style="overflow: hidden"
+                        @keyup.enter="page.cur=Number(inputPage)"
+                        type="number"></md-input>
+            </md-field>
+            <md-button class="md-icon-button"
+                       v-if="page.cur<page.maxPage"
+                       @click="page.cur=page.cur<page.maxPage?(Number(page.cur)+1):page.maxPage">
+              <md-icon>arrow_right</md-icon>
+            </md-button>
+          </div>
         </md-content>
-        <md-empty-state v-else
+        <md-empty-state v-else-if="!badnet"
                         md-icon="devices_other"
                         md-label="暂无搜索结果"></md-empty-state>
+        <md-empty-state v-if="badnet"
+                        md-icon="wifi_off"
+                        md-label="网络开小差了~"></md-empty-state>
         <!--        <md-table-pagination
                     :md-page-size="page.size"
                     :md-update="updatePage(page.cur,page.size)"
                     :md-data.sync="search_result"/>-->
-        <div class="md-toolbar-row">
-          <md-button class="md-icon-button"
-                     v-if="page.cur>1"
-                     @click="page.cur=page.cur>1?(page.cur-1):1">
-            <md-icon>arrow_left</md-icon>
-          </md-button>
-          <md-field style="width: 5em">
-            <label>1-{{ page.maxPage }}</label>
-            <md-input v-model="inputPage"
-                      style="overflow: hidden"
-                      @keyup.enter="page.cur=Number(inputPage)"
-                      type="number"></md-input>
-          </md-field>
-          <md-button class="md-icon-button"
-                     v-if="page.cur<page.maxPage"
-                     @click="page.cur=page.cur<page.maxPage?(Number(page.cur)+1):page.maxPage">
-            <md-icon>arrow_right</md-icon>
-          </md-button>
-        </div>
       </template>
 
     </div>
@@ -72,6 +77,7 @@ export default {
   data() {
     return {
       inputPage: 1,
+      badnet: false,
       page: {
         cur: 1,
         size: 30,
@@ -79,9 +85,9 @@ export default {
       },
       loading: true,
       chips: {
-        platform: {name: '平台', list: ['全部'], select: []},
-        style: {name: '药品样式', list: ['全部'], select: []},
-        producers: {name: '产商', list: ['全部'], select: []}
+        platform: {name: '平台', list: [], select: []},
+        // style: {name: '药品样式', list: ['全部'], select: []},
+        // producers: {name: '产商', list: ['全部'], select: []}
       },
       search_result: {
         size: null,
@@ -100,9 +106,9 @@ export default {
   watch: {
     $route: {
       handler: function (newV) {
-        alert(newV.query.page)
         this.loading = true
         this.page.cur = newV.query.page
+        this.badnet = false
         getDrugs(this.page.cur, this.page.size, {title: decodeURI(newV.query.q)}).then(res => {
           res = res.data.data
           this.search_result.data = res.drugs
@@ -135,8 +141,9 @@ export default {
   },
   created() {
     // this.chips.platform.list.push(...['淘宝', '京东', '拼多多'])
-    this.chips.style.list.push(...['薄片', '胶囊'])
-    this.chips.producers.list.push(...['A', 'B', 'C'])
+    // this.chips.style.list.push(...['薄片', '胶囊'])
+    // this.chips.producers.list.push(...['A', 'B', 'C'])
+    this.badnet = false
     getDrugs(this.page.cur, this.page.size, {title: decodeURI(this.$route.query.q)}).then(res => {
       res = res.data.data
       this.search_result.data = res.drugs
@@ -146,12 +153,16 @@ export default {
         return v.type
       })))
       this.loading = false
+    }).catch(() => {
+      this.loading = false
+      this.badnet = true
     })
   },
   methods: {
     updatePage(page, pageSize) {
       console.log(page, pageSize)
       this.loading = true
+      this.badnet = false
       getDrugs(page, pageSize, {title: decodeURI(this.$route.query.q)}).then(res => {
         res = res.data.data
         this.search_result.data = res.drugs
@@ -173,7 +184,7 @@ export default {
   flex-wrap: nowrap;
 
   .md-layout-item {
-    max-width: 33%;
+    //max-width: 33%;
   }
 }
 </style>

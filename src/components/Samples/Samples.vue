@@ -113,8 +113,8 @@ export default {
       document.body.appendChild(ttt)
     }
     this.list.push({
-      url: /*document.getElementById('chart').getElementsByTagName('canvas')[0].toDataURL('image/png')*/'https://avatar-static.segmentfault.com/237/680/2376808203-5d89dfc407f98_huge128',
-      title: '二甲双胍',
+      url: /*document.getElementById('chart').getElementsByTagName('canvas')[0].toDataURL('image/png')*/'https://cdn.glitch.com/d7f4f279-e13b-4330-8422-00b2d9211424%2FGlitch-Error-Rainbow-Mug-hires.png?v=1595481653593',
+      title: '二甲双胍市场价与供货价比值分布',
       type: 'sunburst'
     })
 
@@ -144,45 +144,62 @@ export default {
         let temp = {}
         getExample().then(res => {
           res = res.data
+          /*console.log(new Set(res.map(v => {
+            return v['type']
+          })))*/
           //生成旭日图，从内到外依次为药品名、规格、进货价+产商、销售价
           res.forEach(v => {
             let cr = this.clean(v.specification)
             if (!cr) cr = '其他'
-            if (temp[v.title]) {
+            if (v.title.includes('片')) v.title = '片剂'
+            else if (v.title.includes('针')) v.title = '针剂'
+            else v.title = '胶囊'
+            let times = Math.round(v.retailPrice / v.supplyPrice)
+            /*if (temp[v.title]) {
               if (temp[v.title][cr]) {
-                if (temp[v.title][cr][v.supplyPrice]) {
-                  if (!temp[v.title][cr][v.supplyPrice][v.retailPrice]) temp[v.title][cr][v.supplyPrice][v.retailPrice] = 1
-                  else temp[v.title][cr][v.supplyPrice][v.retailPrice]++
-                } else {
-                  temp[v.title][cr][v.supplyPrice] = {}
-                  temp[v.title][cr][v.supplyPrice][v.retailPrice] = 1
-                }
+                if (temp[v.title][cr][times])
+                  temp[v.title][cr][times]++
+                else temp[v.title][cr][times] = 1
               } else {
                 temp[v.title][cr] = {}
-                temp[v.title][cr][v.supplyPrice] = {}
-                temp[v.title][cr][v.supplyPrice][v.retailPrice] = 1
+                temp[v.title][cr][times] = 1
               }
             } else {
               temp[v.title] = {}
               temp[v.title][cr] = {}
-              temp[v.title][cr][v.supplyPrice] = {}
-              temp[v.title][cr][v.supplyPrice][v.retailPrice] = 1
+              temp[v.title][cr][times] = 1
+            }*/
+
+            if (temp[v.title]) {
+              if (temp[v.title][times])
+                  temp[v.title][times]++
+                else temp[v.title][times] = 1
+            } else {
+              temp[v.title] = {}
+              temp[v.title][times] = 1
             }
           })
           this.data = []
           for (let item in temp) {
             this.data.push({
               name: /*this.preName[0] + ': ' +*/ item,
-              itemStyle: {
-                // color: getRandomColor()
-              },
-              value: 1,
               children: this.getNext(temp[item], item)
             })
           }
           // this.option = this.createSunburst(this.data)
+          console.log(this.data)
           this.option = Object.assign({}, this.option, this.createSunburst(this.data))
-          // console.log(this.option)
+          /* let set = new Set()
+           this.data.forEach(v1 => {//剂型
+             v1.children.forEach(v2 => {//规格
+               v2.children.forEach(v3 => {//供货价
+                 v3.children.forEach(v4 => {//市场价
+                   set.add(Math.round(Number(v4.name) / Number(v3.name)))
+                 })
+               })
+             })
+           })
+           console.log(set)*/
         })
       }
     },
@@ -190,31 +207,17 @@ export default {
     getNext(data, name, depth = 1) {
       //从内到外依次为药品名、规格、进货价+产商、销售价
       let children = []
-      if (depth === 3) {
-        // eslint-disable-next-line no-unused-vars
-        let average = 0
-        for (let v in data)//销售价
-          average += Number(v)
-        average /= Object.keys(data).length
-        average = average.toFixed(2)
-        children.push({
-          name: /*'平均' + this.preName[depth] +*/ average,
-          // value: average,
-          value: 1,
-          itemStyle: {
-            // color: getRandomColor()
-          }
-        })
+      if (depth === 1) {
+        for (let v in data)
+          children.push({
+            name: v + '倍',
+            value: data[v]
+          })
         return children
       } else {
         for (let v in data) {
           children.push({
-            name: /*this.preName[depth] + */v,
-            // value: depth === 1 ? 1 : v,
-            value: 1,
-            itemStyle: {
-              // color: getRandomColor()
-            },
+            name: /*this.preName[depth] + */depth === 1 ? '规格' + v : v,
             children: this.getNext(data[v], v, depth + 1)
           })
         }
@@ -223,64 +226,38 @@ export default {
     },
     createSunburst(data) {
       return {
-        title: {
-          text: '旭日图'
-        },
+        color:['#FFAE57', '#FF7853', '#EA5151', '#CC3F57', '#9A2555'],
         series: {
           type: 'sunburst',
           data: data,
           radius: [0, '95%'],
-          sort: undefined,
+          sort: function (a,b){
+            if(a.depth===0)return a.dataIndex-b.dataIndex
+            else return b.getValue()-a.getValue()
+          },
           emphasis: {
-            focus: 'ancestor'
+            focus: 'descendant'
+          },
+          label: {
+            rotate: 'radial',
+          },
+          itemStyle: {
+            borderColor: '#fff',
+            borderWidth: 1,
           },
           levels: [
             {},
             {
               r0: '15%',
               r: '40%',
-              itemStyle: {
-                borderWidth: 1
-              },
-              label: {
-                rotate: 'tangential'
-              }
             },
             {
               r0: '40%',
               r: '60%',
-              label: {
-                // align: 'right'
-                rotate: 'tangential'
-              },
-              itemStyle: {
-                borderWidth: 1
+              label:{
+                position:'outside'
               }
             },
-            {
-              r0: '60%',
-              r: '95%',
-              label: {
-                // align: 'center'
-                rotate: 'tangential'
-              },
-              itemStyle: {
-                borderWidth: 1
-              }
-            },
-            {
-              r0: '95%',
-              r: '100%',
-              label: {
-                position: 'outside',
-                rotate: 'tangential',
-                padding: 3,
-                silent: false
-              },
-              itemStyle: {
-                borderWidth: 1
-              }
-            }
           ]
         }
       }
@@ -307,7 +284,7 @@ export default {
 
 .md-dialog-title {
   &:after {
-    content: '从内到外分别为药名、规格、供货价、平均销售价';
+    content: '从内到外分别为剂型、市场售价与供货价的比值（四舍五入）';
     font-size: xx-small;
     color: #999999;
   }
