@@ -18,7 +18,7 @@ function getListByName(params) {
 
 function getData(params) {
     // return axios.get('/data.json')
-    return axios.get('//localhost:5000/api/getDrugByName',{
+    return axios.get('//yuneko.me:5000/api/getDrugByName',{
         params:params
     })
 }
