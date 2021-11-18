@@ -1,10 +1,9 @@
 <template>
-  <md-content class=" md-layout md-gutter md-scrollbar">
+  <md-content class="samples  md-scrollbar">
     <thumb v-for="(item,i) in list"
            :url.sync="item.url"
            v-show="list[i]"
            @click.native="openChart(i)"
-           class="md-layout-item"
            :title.sync="item.title"
            :key="i"/>
     <md-dialog :md-active.sync="show"
@@ -26,7 +25,6 @@ import {CanvasRenderer} from "echarts/renderers";
 import {PieChart, SunburstChart} from "echarts/charts";
 import {LegendComponent, TitleComponent, TooltipComponent} from "echarts/components";
 import VChart, {THEME_KEY} from "vue-echarts";
-import {getExample} from "../../api";
 import html2canvas from 'html2canvas'
 
 use([
@@ -83,6 +81,16 @@ export default {
         pre + '白云山 小柴胡颗粒 10克10袋.html',
         pre + '白云山红霉素软膏.html',
         pre + '芬必得 布洛芬缓释胶囊 0.3g24粒.html',
+        pre + '京东二甲双胍缓释片.html',
+        pre + '京东奥美拉唑肠溶片.html',
+        pre + '京东拜阿司匹林.html',
+        pre + '京东阿莫西林胶囊.html',
+        pre + '京东雷尼替丁胶囊.html',
+        pre + '天猫二甲双胍缓释片.html',
+        pre + '天猫奥美拉唑肠溶片.html',
+        pre + '天猫拜阿司匹林.html',
+        pre + '天猫阿莫西林胶囊.html',
+        pre + '天猫雷尼替丁胶囊.html'
       ],
       option: {},
       data: null,
@@ -108,15 +116,15 @@ export default {
             let url = canvas.toDataURL('image/png')
             this.$set(this.list[i], 'url', url)
           })
-        }, 1000)
+        }, 2000)
       }
       document.body.appendChild(ttt)
     }
-    this.list.push({
-      url: /*document.getElementById('chart').getElementsByTagName('canvas')[0].toDataURL('image/png')*/'https://cdn.glitch.com/d7f4f279-e13b-4330-8422-00b2d9211424%2FGlitch-Error-Rainbow-Mug-hires.png?v=1595481653593',
+    /*this.list.push({
+      url: /!*document.getElementById('chart').getElementsByTagName('canvas')[0].toDataURL('image/png')*!/'https://cdn.glitch.com/d7f4f279-e13b-4330-8422-00b2d9211424%2FGlitch-Error-Rainbow-Mug-hires.png?v=1595481653593',
       title: '二甲双胍市场价与供货价比值分布',
       type: 'sunburst'
-    })
+    })*/
 
   },
   methods: {
@@ -131,154 +139,31 @@ export default {
     loadHtml(path) {
       this.html = path
     },
-    clean(str) {
-      str = (str.match(/[0-9.]+(\D+\*\d+.|.)\/./g) !== null ? str.match(/[0-9.]+(\D+\*\d+.|.)\/./g).pop() : (str.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g) ? str.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g).pop() : '暂无规格')).replace(/[^.*\d]/g, '')
-      return str
-    },
     openChart(i) {
       this.show = true;
       this.cur = i
-      if (this.list[i].type === 'html') {
-        this.loadHtml(this.list[i].path)
-      } else {
-        let temp = {}
-        getExample().then(res => {
-          res = res.data
-          /*console.log(new Set(res.map(v => {
-            return v['type']
-          })))*/
-          //生成旭日图，从内到外依次为药品名、规格、进货价+产商、销售价
-          res.forEach(v => {
-            let cr = this.clean(v.specification)
-            if (!cr) cr = '其他'
-            if (v.title.includes('片')) v.title = '片剂'
-            else if (v.title.includes('针')) v.title = '针剂'
-            else v.title = '胶囊'
-            let times = Math.round(v.retailPrice / v.supplyPrice)
-            /*if (temp[v.title]) {
-              if (temp[v.title][cr]) {
-                if (temp[v.title][cr][times])
-                  temp[v.title][cr][times]++
-                else temp[v.title][cr][times] = 1
-              } else {
-                temp[v.title][cr] = {}
-                temp[v.title][cr][times] = 1
-              }
-            } else {
-              temp[v.title] = {}
-              temp[v.title][cr] = {}
-              temp[v.title][cr][times] = 1
-            }*/
-
-            if (temp[v.title]) {
-              if (temp[v.title][times])
-                  temp[v.title][times]++
-                else temp[v.title][times] = 1
-            } else {
-              temp[v.title] = {}
-              temp[v.title][times] = 1
-            }
-          })
-          this.data = []
-          for (let item in temp) {
-            this.data.push({
-              name: /*this.preName[0] + ': ' +*/ item,
-              children: this.getNext(temp[item], item)
-            })
-          }
-          // this.option = this.createSunburst(this.data)
-          console.log(this.data)
-          this.option = Object.assign({}, this.option, this.createSunburst(this.data))
-          /* let set = new Set()
-           this.data.forEach(v1 => {//剂型
-             v1.children.forEach(v2 => {//规格
-               v2.children.forEach(v3 => {//供货价
-                 v3.children.forEach(v4 => {//市场价
-                   set.add(Math.round(Number(v4.name) / Number(v3.name)))
-                 })
-               })
-             })
-           })
-           console.log(set)*/
-        })
-      }
+      this.loadHtml(this.list[i].path)
     },
     // eslint-disable-next-line no-unused-vars
-    getNext(data, name, depth = 1) {
-      //从内到外依次为药品名、规格、进货价+产商、销售价
-      let children = []
-      if (depth === 1) {
-        for (let v in data)
-          children.push({
-            name: v + '倍',
-            value: data[v]
-          })
-        return children
-      } else {
-        for (let v in data) {
-          children.push({
-            name: /*this.preName[depth] + */depth === 1 ? '规格' + v : v,
-            children: this.getNext(data[v], v, depth + 1)
-          })
-        }
-        return children
-      }
-    },
-    createSunburst(data) {
-      return {
-        color:['#FFAE57', '#FF7853', '#EA5151', '#CC3F57', '#9A2555'],
-        series: {
-          type: 'sunburst',
-          data: data,
-          radius: [0, '95%'],
-          sort: function (a,b){
-            if(a.depth===0)return a.dataIndex-b.dataIndex
-            else return b.getValue()-a.getValue()
-          },
-          emphasis: {
-            focus: 'descendant'
-          },
-          label: {
-            rotate: 'radial',
-          },
-          itemStyle: {
-            borderColor: '#fff',
-            borderWidth: 1,
-          },
-          levels: [
-            {},
-            {
-              r0: '15%',
-              r: '40%',
-            },
-            {
-              r0: '40%',
-              r: '60%',
-              label:{
-                position:'outside'
-              }
-            },
-          ]
-        }
-      }
-    }
   }
 }
 </script>
 
 <style scoped lang="scss">
-.md-layout {
+.samples {
   max-height: 82vh;
   overflow: auto;
-}
+  display: flex;
+  flex-wrap: wrap;
 
-.md-layout-item {
-  width: 200px;
-  flex: auto !important;
-  margin-bottom: 20px;
+  .thumb {
+    width: 180px;
+    flex: auto !important;
+    margin-bottom: 20px;
 
-  :hover {
-    cursor: pointer;
+    :hover {
+      cursor: pointer;
+    }
   }
 }
 

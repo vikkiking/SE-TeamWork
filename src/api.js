@@ -16,8 +16,11 @@ function getListByName(params) {
     })
 }
 
-function getExample() {
-    return axios.get('/data.json')
+function getData(params) {
+    // return axios.get('/data.json')
+    return axios.get('//localhost:5000/api/getDrugByName',{
+        params:params
+    })
 }
 
 function getHtml(url, params) {
@@ -32,4 +35,4 @@ function getReadMe() {
     })
 }
 
-export {getDrugs, getDetailByID, getListByName, getExample, getHtml, getReadMe}
+export {getDrugs, getDetailByID, getListByName, getData, getHtml, getReadMe}

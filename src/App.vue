@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" >
     <md-app md-waterfall md-mode="fixed-last">
       <md-app-toolbar class="md-large md-dense md-primary">
         <!--        <div class="md-toolbar-row">-->
@@ -37,7 +37,6 @@
                     </md-speed-dial>&ndash;&gt;
         </div>-->
         <!--        </div>-->
-
 
       </md-app-toolbar>
 

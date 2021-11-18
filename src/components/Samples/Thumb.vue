@@ -22,11 +22,12 @@ export default {
 <style scoped lang="scss">
 .thumb:hover {
   cursor: pointer;
+  width: 100%;
 }
 
 img{
   display: block;
-  width: 257px !important;
+  width: 100% !important;
   height: 176px !important;
   object-fit: cover;
 }
