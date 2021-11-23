@@ -18,11 +18,16 @@ function getListByName(params) {
 
 function getData(params) {
     // return axios.get('/data.json')
-    return axios.get('//yuneko.me:5000/api/getDrugByName',{
+    return axios.get('//yuneko.me:9934/api/getDrugByName',{
         params:params
     })
 }
-
+function getDosageForm(params)
+{
+    return axios.get('//yuneko.me:9934/api/getAllDosageForm',{
+        params:params
+    })
+}
 function getHtml(url, params) {
     return axios.get(url, params)
 }
@@ -35,4 +40,4 @@ function getReadMe() {
     })
 }
 
-export {getDrugs, getDetailByID, getListByName, getData, getHtml, getReadMe}
+export {getDrugs, getDetailByID, getListByName, getData, getHtml, getReadMe,getDosageForm}

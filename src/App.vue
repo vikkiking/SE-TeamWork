@@ -1,5 +1,5 @@
 <template>
-  <div id="app" >
+  <div id="app">
     <md-app md-waterfall md-mode="fixed-last">
       <md-app-toolbar class="md-large md-dense md-primary">
         <!--        <div class="md-toolbar-row">-->
@@ -9,33 +9,33 @@
           <md-tabs class="md-primary" md-sync-route>
             <md-tab id="tab-home" md-label="首页" to="/" exact></md-tab>
             <md-tab id="tab-samples" md-label="示例" to="/sample" exact></md-tab>
-            <md-tab id="tab-about" md-label="关于" href="https://github.com/Jimase/Software_Engineering_Team_10"></md-tab>
+            <md-tab id="tab-about" md-label="关于" href="//yuneko.me/about"></md-tab>
             <md-tab id="tab-joinus" md-label="加入我们" to="/joinus"></md-tab>
           </md-tabs>
         </div>
-<!--        <div class="md-toolbar-section-end">
-          <md-button class="md-icon-button"
-                     style="margin-right: 10px"
-                     @mouseover="showSidepanel = true">
-            <md-icon class="md-size-2x">account_circle</md-icon>
-          </md-button>
+        <!--        <div class="md-toolbar-section-end">
+                  <md-button class="md-icon-button"
+                             style="margin-right: 10px"
+                             @mouseover="showSidepanel = true">
+                    <md-icon class="md-size-2x">account_circle</md-icon>
+                  </md-button>
 
-          &lt;!&ndash;          <md-speed-dial class="md-right" md-direction="bottom">
-                      <md-speed-dial-target class="md-primary">
-                        <md-icon>account_circle</md-icon>
-                      </md-speed-dial-target>
+                  &lt;!&ndash;          <md-speed-dial class="md-right" md-direction="bottom">
+                              <md-speed-dial-target class="md-primary">
+                                <md-icon>account_circle</md-icon>
+                              </md-speed-dial-target>
 
-                        <md-speed-dial-content>
-                          <md-button class="md-list-action" to="/login">微信登录</md-button>
-                        </md-speed-dial-content>
-                        <md-speed-dial-content>
-                          <md-button class="md-list-action">设置</md-button>
-                        </md-speed-dial-content>
-                        <md-speed-dial-content>
-                          <md-button class="md-list-action">退出</md-button>
-                        </md-speed-dial-content>
-                    </md-speed-dial>&ndash;&gt;
-        </div>-->
+                                <md-speed-dial-content>
+                                  <md-button class="md-list-action" to="/login">微信登录</md-button>
+                                </md-speed-dial-content>
+                                <md-speed-dial-content>
+                                  <md-button class="md-list-action">设置</md-button>
+                                </md-speed-dial-content>
+                                <md-speed-dial-content>
+                                  <md-button class="md-list-action">退出</md-button>
+                                </md-speed-dial-content>
+                            </md-speed-dial>&ndash;&gt;
+                </div>-->
         <!--        </div>-->
 
       </md-app-toolbar>

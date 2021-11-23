@@ -35,7 +35,7 @@ export default {
   computed: {
     getInfo2Show() {
       return {
-        id: this.detail.id,
+        // id: this.detail.id,
         '药名': this.detail.drugTitle.match(/(?<=】).+?(?=\d)/g) !== null ? this.detail.drugTitle.match(/(?<=】).+?(?=\d)/g)[0] : (this.detail.drugTitle.match(/.+?(?=\d)/g) !== null ? this.detail.drugTitle.match(/.+?(?=\d)/g)[0] : this.detail.drugTitle),
         '价格': '¥' + this.detail.price,
         '规格': this.detail.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g) !== null ? this.detail.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g).pop() : (this.detail.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g) ? this.detail.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g).pop() : '暂无规格'),

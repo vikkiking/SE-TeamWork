@@ -6,34 +6,25 @@
           <md-progress-spinner v-if="loading"
                                md-mode="indeterminate"></md-progress-spinner>
           <template v-else>
-            <md-content class="md-layout md-gutter md-alignment-center md-scrollbar search-panel"
-                        v-if="getList.length>0">
-              <div class="md-layout md-gutter filter">
-                <div class="md-layout-item"
-                     :key="i"
-                     v-for="(item,i) in chips">
-                  <md-field>
-                    <label :for="i">{{ item.name }}</label>
-                    <md-select :id="i"
-                               v-model="item.select"
-                               :name="item.name"
-                               multiple>
-                      <md-option v-for="(chip,j) in item.list"
-                                 :key="j"
-                                 :value="j"
-                      >{{ chip }}
-                      </md-option>
-                    </md-select>
-                  </md-field>
-                </div>
+            <div class="md-layout md-gutter filter">
+              <div class="md-layout-item"
+                   :key="i"
+                   v-for="(item,i) in chips">
+                <md-field>
+                  <label :for="i">{{ item.name }}</label>
+                  <md-select :id="i"
+                             v-model="item.select"
+                             :name="item.name"
+                             multiple>
+                    <md-option v-for="(chip,j) in item.list"
+                               :key="j"
+                               :value="j"
+                    >{{ chip }}
+                    </md-option>
+                  </md-select>
+                </md-field>
               </div>
-              <template>
-                <card v-for="(item, i) in getList"
-                      :key="i"
-                      img="/temp.jpeg"
-                      :data="item"/>
-              </template>
-              <div class="md-toolbar-row">
+              <div class=" md-layout-item">
                 <md-button class="md-icon-button"
                            v-if="page.cur>1"
                            @click="page.cur=page.cur>1?(page.cur-1):1">
@@ -52,6 +43,17 @@
                   <md-icon>arrow_right</md-icon>
                 </md-button>
               </div>
+            </div>
+            <md-content class="md-layout md-gutter md-alignment-center md-scrollbar search-panel"
+                        v-if="getList.length>0">
+
+              <template>
+                <card v-for="(item, i) in getList"
+                      :key="i"
+                      img="/temp.jpeg"
+                      :data="item"/>
+              </template>
+
             </md-content>
             <md-empty-state v-else-if="!badnet"
                             md-icon="devices_other"
@@ -68,8 +70,19 @@
         </div>
       </md-step>
       <md-step id="search-result-right" md-label="数据可视化">
-        <v-chart :option.sync="option"
-                 autoresize/>
+        <div class="fullscreen-wrapper">
+          <md-button v-if="!fullscreen" @click="fs">
+            <md-icon>fullscreen</md-icon>
+          </md-button>
+          <div>
+            <v-chart :option.sync="option_sunburst"
+                     autoresize/>
+            <v-chart :option.sync="option_scatter"
+                     autoresize></v-chart>
+            <!--            <v-chart :option="{title:'表格？'}"-->
+            <!--                     autoresize></v-chart>-->
+          </div>
+        </div>
       </md-step>
     </md-steppers>
 
@@ -78,15 +91,19 @@
 
 <script>
 import Card from "./Card";
-import {getData, getDrugs} from "../../api";
+import {getData, getDosageForm, getDrugs} from "../../api";
+import {api as fullscreen} from 'vue-fullscreen'
 
 export default {
   name: "SearchResult",
   components: {Card},
   data() {
     return {
+      fullscreen: false,
+      teleport: true,
       inputPage: 1,
-      option: {},
+      option_sunburst: {},
+      option_scatter: {},
       badnet: false,
       page: {
         cur: 1,
@@ -96,8 +113,8 @@ export default {
       loading: true,
       chips: {
         platform: {name: '平台', list: [], select: []},
-        // style: {name: '药品样式', list: ['全部'], select: []},
-        // producers: {name: '产商', list: ['全部'], select: []}
+        style: {name: '样式', list: [], select: []},
+        producers: {name: '产商', list: [], select: []}
       },
       search_result: {
         size: null,
@@ -122,6 +139,12 @@ export default {
         getDrugs(this.page.cur, this.page.size, {title: decodeURI(newV.query.q)}).then(res => {
           res = res.data.data
           this.search_result.data = res.drugs
+          this.search_result.data = this.search_result.data.map(v => {
+            v.specification = v.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g) !== null ? v.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g).pop() : (v.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g) ? v.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g).pop() : '暂无规格')
+            return v
+          })
+          this.page.maxPage = res.pages
+          this.inputPage = this.page.cur
           this.loading = false
           this.inputPage = this.page.cur
         })
@@ -152,12 +175,17 @@ export default {
   },
   created() {
     // this.chips.platform.list.push(...['淘宝', '京东', '拼多多'])
-    // this.chips.style.list.push(...['薄片', '胶囊'])
-    // this.chips.producers.list.push(...['A', 'B', 'C'])
+    this.chips.style.list.push(...['薄片', '胶囊'])
+    this.chips.producers.list.push(...['A', 'B', 'C'])
     this.badnet = false
+    this.page.cur = this.$route.query.page
     getDrugs(this.page.cur, this.page.size, {title: decodeURI(this.$route.query.q)}).then(res => {
       res = res.data.data
       this.search_result.data = res.drugs
+      this.search_result.data = this.search_result.data.map(v => {
+        v.specification = v.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g) !== null ? v.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g).pop() : (v.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g) ? v.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g).pop() : '暂无规格')
+        return v
+      })
       this.page.maxPage = res.pages
       this.inputPage = this.page.cur
       this.chips.platform.list.push(...new Set(this.search_result.data.map(v => {
@@ -171,12 +199,25 @@ export default {
     this.openChart()
   },
   methods: {
+    async fs() {
+      await fullscreen.toggle(this.$el.querySelector('.fullscreen-wrapper'), {
+        teleport: this.teleport,
+        callback: (isFullscreen) => {
+          this.fullscreen = isFullscreen
+        }
+      })
+      // this.fullscreen = fullscreen.isFullscreen
+    },
     updatePage(page, pageSize) {
       this.loading = true
       this.badnet = false
       getDrugs(page, pageSize, {title: decodeURI(this.$route.query.q)}).then(res => {
         res = res.data.data
         this.search_result.data = res.drugs
+        this.search_result.data = this.search_result.data.map(v => {
+          v.specification = v.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g) !== null ? v.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g).pop() : (v.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g) ? v.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g).pop() : '暂无规格')
+          return v
+        })
         this.loading = false
         this.inputPage = this.page.cur
       })
@@ -186,8 +227,12 @@ export default {
       return str
     },
     openChart() {
-      let temp = {}
-      this.option = {
+      this.option_sunburst = {
+        title: {
+          text: '加载中...'
+        }
+      }
+      this.option_scatter = {
         title: {
           text: '加载中...'
         }
@@ -197,30 +242,10 @@ export default {
         if (res.length > 0)
             //生成旭日图，从内到外依次为药品名、规格、进货价+产商、销售价
         {
-          res.forEach(v => {
-            let cr = this.clean(v.specification)
-            if (!cr) cr = '其他'
-            let times = Math.round(v.retailPrice / v.supplyPrice)
-            if (v.type === '无' || v.type === '—') v.type = '其他'
-            if (temp[v.type]) {
-              if (temp[v.type][times])
-                temp[v.type][times]++
-              else temp[v.type][times] = 1
-            } else {
-              temp[v.type] = {}
-              temp[v.type][times] = 1
-            }
-          })
-          this.data = []
-          for (let item in temp) {
-            this.data.push({
-              name: /*this.preName[0] + ': ' +*/ item,
-              children: this.getNext(temp[item], item)
-            })
-          }
-          this.option = Object.assign({}, this.option, this.createSunburst(this.data))
+          this.option_sunburst = Object.assign({}, this.option_sunburst, this.createSunburst(res))
+          // this.option_scatter = Object.assign({}, this.option_scatter, this.createScatter(res))
         } else {
-          this.option = {
+          this.option_sunburst = {
             title: {
               text: '暂无' + decodeURI(this.$route.query.q) + '价格信息'
             }
@@ -249,10 +274,36 @@ export default {
         return children
       }
     },
-    createSunburst(data) {
+    createSunburst(res) {
+      let temp = {}, data = []
+      res.forEach(v => {
+        let cr = this.clean(v.specification)
+        if (!cr) cr = '其他'
+        let times = Math.round(v.retailPrice / v.supplyPrice)
+        if (v.type === '无' || v.type === '—') v.type = '其他'
+        if (temp[v.type]) {
+          if (temp[v.type][times])
+            temp[v.type][times]++
+          else temp[v.type][times] = 1
+        } else {
+          temp[v.type] = {}
+          temp[v.type][times] = 1
+        }
+      })
+      for (let item in temp) {
+        data.push({
+          name: /*this.preName[0] + ': ' +*/ item,
+          children: this.getNext(temp[item], item)
+        })
+      }
       return {
         title: {
-          text: decodeURI(this.$route.query.q) + '市场价与供货价比值分布'
+          text: decodeURI(this.$route.query.q) + '市场价与供货价比值分布（倍数四舍五入）',
+          left: 20,
+          top: 20,
+          textStyle: {
+            overflow: 'breakAll',
+          },
         },
         color: ['#FFAE57', '#FF7853', '#EA5151', '#CC3F57', '#9A2555'],
         series: {
@@ -289,12 +340,137 @@ export default {
           ]
         }
       }
+    },
+    createScatter(res) {
+      let data = [], types = [], temp = {}
+      getDosageForm({name: this.$route.query.q}).then(r => {
+        types = r.data.data.dosage_form
+      })
+      res.forEach(v => {
+        if (!temp[v.type]) {
+          temp[v.type] = []
+        }
+        temp[v.type].push(v)
+      })
+      /* for (let item in types)
+       {
+         temp[item].map(v=>{
+           return
+         })
+       }*/
+      let option = {
+        title: {
+          text: this.$route.query.q + '气泡图',
+          left: 20,
+          top: 20
+        },
+        legend: {
+          right: '10%',
+          top: '3%',
+          data: types
+        },
+        grid: {
+          left: '8%',
+          top: '10%'
+        },
+        xAxis: {
+          splitLine: {
+            lineStyle: {
+              type: 'dashed'
+            }
+          }
+        },
+        yAxis: {
+          splitLine: {
+            lineStyle: {
+              type: 'dashed'
+            }
+          },
+          scale: true
+        },
+        series: []
+      }
+      for (let i = 0; i < data.length; i++) {
+        option.series.push({
+          name: types[i],
+          data: data[i],
+          type: 'scatter',
+          symbolSize: function (data) {
+            return Math.sqrt(data[2])
+          },
+          emphasis: {
+            focus: 'series',
+            label: {
+              show: true,
+              formatter: function (param) {
+                return param.data[3];
+              },
+              position: 'top'
+            }
+          },
+        })
+      }
+      return option
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
+.fullscreen-wrapper {
+  padding: 20px;
+  background: white !important;
+  position: relative;
+
+  .md-button {
+    width: fit-content;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  > div {
+    margin-top: 36px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    @media (max-width: 600px) {
+      .echarts {
+        width: 100%;
+        height: 60vh;
+      }
+    }
+    @media (min-width: 601px) {
+      :nth-child(1), :nth-child(2) {
+        width: 45%;
+        height: 40vmax;
+        border-radius: 16px;
+      }
+
+      :nth-child(3) {
+        width: 95%;
+        height: 40vh;
+        border-radius: 16px;
+      }
+    }
+
+    .echarts {
+      /*width: 45%;
+      height: 40vh;
+      background: #f2f5fa !important;
+      border-radius: 16px;*/
+      margin-bottom: 5%;
+      background: #f2f5fa;
+    }
+
+    .echarts > div {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+}
+
 .search-result {
   //display: inline-flex;
   //flex-wrap: nowrap;
@@ -306,30 +482,39 @@ export default {
   &-right {
     width: 300px;
   }*/
-
   .search-panel {
     max-height: 69vh;
     overflow: auto;
+    //overflow-x: hidden;
   }
 
   .filter {
     flex-wrap: nowrap;
+    width: 100%;
 
-    .md-layout-item {
-      //max-width: 33%;
+
+    @media (max-width: 600px) {
+      .md-layout-item:nth-child(1), .md-layout-item:nth-child(2), .md-layout-item:nth-child(3) {
+        max-width: 20%;
+        flex: 1;
+      }
+    }
+    @media(min-width: 601px) {
+      .md-layout-item:nth-child(1), .md-layout-item:nth-child(2), .md-layout-item:nth-child(3) {
+        //max-width: 29%;
+        flex: 1;
+      }
+    }
+
+    .md-layout-item:last-child {
+      width: fit-content !important;
+      display: inline-flex;
+      flex: 0 !important;
+      align-items: center;
     }
   }
 
 
-  .echarts {
-    width: 100vw;
-    height: 80vw;
-  }
-
-  .echarts > div {
-    width: 100%;
-    height: 100%;
-  }
 }
 
 
