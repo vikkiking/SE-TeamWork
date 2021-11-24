@@ -243,7 +243,7 @@ export default {
             //生成旭日图，从内到外依次为药品名、规格、进货价+产商、销售价
         {
           this.option_sunburst = Object.assign({}, this.option_sunburst, this.createSunburst(res))
-          // this.option_scatter = Object.assign({}, this.option_scatter, this.createScatter(res))
+          this.option_scatter = Object.assign({}, this.option_scatter, this.createScatter(res))
         } else {
           this.option_sunburst = {
             title: {
@@ -327,7 +327,7 @@ export default {
           levels: [
             {},
             {
-              r0: '15%',
+              r0: '0%',
               r: '40%',
             },
             {
@@ -342,22 +342,27 @@ export default {
       }
     },
     createScatter(res) {
-      let data = [], types = [], temp = {}
+      let data = [], types = []//, temp = {}
       getDosageForm({name: this.$route.query.q}).then(r => {
         types = r.data.data.dosage_form
       })
-      res.forEach(v => {
-        if (!temp[v.type]) {
-          temp[v.type] = []
-        }
-        temp[v.type].push(v)
-      })
+      /* res.forEach(v => {
+         if (!temp[v.type]) {
+           temp[v.type] = []
+         }
+         temp[v.type].push(v)
+       })*/
       /* for (let item in types)
        {
          temp[item].map(v=>{
            return
          })
        }*/
+      res.forEach(v => {
+        data.push([...v])
+      })
+      console.log('data')
+      console.log(data)
       let option = {
         title: {
           text: this.$route.query.q + '气泡图',
@@ -403,7 +408,11 @@ export default {
             label: {
               show: true,
               formatter: function (param) {
-                return param.data[3];
+                return '药名：' + param.data[0] + '<br>' +
+                    '剂型：' + param.data[1] + '<br>' +
+                    '规格：' + param.data[2] + '<br>' +
+                    '供货价：' + param.data[3] + '<br>' +
+                    '指导价：' + param.data[4];
               },
               position: 'top'
             }
