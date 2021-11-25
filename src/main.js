@@ -11,12 +11,15 @@ import ECharts from 'vue-echarts'
 import {use} from 'echarts/core'
 // 手动引入 ECharts 各模块来减小打包体积
 import {CanvasRenderer} from 'echarts/renderers'
-import {LineChart} from 'echarts/charts'
+import {LineChart,SunburstChart,ScatterChart,MapChart} from 'echarts/charts'
 import {GridComponent, TooltipComponent} from 'echarts/components'
 // import VueFullscreen from "vue-fullscreen";
 use([
     CanvasRenderer,
     LineChart,
+    SunburstChart,
+    MapChart,
+    ScatterChart,
     GridComponent,
     TooltipComponent
 ]);

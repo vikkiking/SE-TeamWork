@@ -75,10 +75,12 @@
             <md-icon>fullscreen</md-icon>
           </md-button>
           <div>
-            <v-chart :option.sync="option_sunburst"
+<!--            <v-chart :option.sync="option_sunburst"
                      autoresize/>
             <v-chart :option.sync="option_scatter"
-                     autoresize></v-chart>
+                     autoresize></v-chart>-->
+            <chart :option.sync="option_sunburst" chart-i-d="0"/>
+            <chart :option.sync="option_scatter" chart-i-d="1"/>
             <!--            <v-chart :option="{title:'表格？'}"-->
             <!--                     autoresize></v-chart>-->
           </div>
@@ -91,12 +93,14 @@
 
 <script>
 import Card from "./Card";
-import {getData, getDosageForm, getDrugs} from "../../api";
+// eslint-disable-next-line no-unused-vars
+import {getData, getDrugs} from "../../api";
 import {api as fullscreen} from 'vue-fullscreen'
+import Chart from "./Chart";
 
 export default {
   name: "SearchResult",
-  components: {Card},
+  components: {Chart, Card},
   data() {
     return {
       fullscreen: false,
@@ -239,13 +243,16 @@ export default {
       }
       getData({name: decodeURI(this.$route.query.q)}).then(res => {
         res = res.data.data.drugs
-        if (res.length > 0)
-            //生成旭日图，从内到外依次为药品名、规格、进货价+产商、销售价
-        {
+        if (res.length > 0) {
           this.option_sunburst = Object.assign({}, this.option_sunburst, this.createSunburst(res))
           this.option_scatter = Object.assign({}, this.option_scatter, this.createScatter(res))
         } else {
           this.option_sunburst = {
+            title: {
+              text: '暂无' + decodeURI(this.$route.query.q) + '价格信息'
+            }
+          }
+          this.option_scatter = {
             title: {
               text: '暂无' + decodeURI(this.$route.query.q) + '价格信息'
             }
@@ -298,14 +305,14 @@ export default {
       }
       return {
         title: {
-          text: decodeURI(this.$route.query.q) + '市场价与供货价比值分布（倍数四舍五入）',
-          left: 20,
-          top: 20,
+          text: decodeURI(this.$route.query.q) + '指导价与供货价比值分布（倍数四舍五入）',
+          left: 'center',
+          top: 'bottom',
           textStyle: {
             overflow: 'breakAll',
           },
         },
-        color: ['#FFAE57', '#FF7853', '#EA5151', '#CC3F57', '#9A2555'],
+        // color: ['#FFAE57', '#FF7853', '#EA5151', '#CC3F57', '#9A2555'],
         series: {
           type: 'sunburst',
           data: data,
@@ -342,81 +349,95 @@ export default {
       }
     },
     createScatter(res) {
-      let data = [], types = []//, temp = {}
-      getDosageForm({name: this.$route.query.q}).then(r => {
+      let data = [], types = [], temp = {}
+      /*getDosageForm({name: this.$route.query.q}).then(r => {
         types = r.data.data.dosage_form
+        types.forEach(type => {
+          temp[type] = []
+        })
+        res.forEach(v => {
+          temp[v.type].push([
+            v.supplyPrice,
+            v.retailPrice,
+            v.title,
+            v.type,
+            v.specification,
+            v.manufactures
+          ])
+        })
+        for (let type in types)
+          data.push(temp[type])
+        console.log(data)
+      })*/
+      types = [...new Set(res.map(v => {
+        return v.type
+      }))]
+      types.forEach(type => {
+        temp[type] = []
       })
-      /* res.forEach(v => {
-         if (!temp[v.type]) {
-           temp[v.type] = []
-         }
-         temp[v.type].push(v)
-       })*/
-      /* for (let item in types)
-       {
-         temp[item].map(v=>{
-           return
-         })
-       }*/
       res.forEach(v => {
-        data.push([...v])
+        temp[v.type].push([
+          v.supplyPrice,
+          v.retailPrice,
+          v.title,
+          v.type,
+          v.specification,
+          v.manufactures
+        ])
       })
-      console.log('data')
-      console.log(data)
+      types.forEach(type => {
+        data.push(temp[type])
+      })
       let option = {
+        // color: ['#dd4444', '#fec42c', '#80F1BE'],
         title: {
-          text: this.$route.query.q + '气泡图',
-          left: 20,
-          top: 20
+          text: decodeURI(this.$route.query.q) + '散点图',
+          left: 'center',
+          top: 'bottom'
+        },
+        tooltip: {
+          backgroundColor: 'rgba(255,255,255,0.7)',
+          formatter: function (param) {
+            return '<div style="text-align: left">'+'药名&nbsp;&nbsp;&nbsp;&nbsp;：' + param.data[2] + '<br>' +
+                '产商&nbsp;&nbsp;&nbsp;&nbsp;：' + param.data[5] + '<br>' +
+                '剂型&nbsp;&nbsp;&nbsp;&nbsp;：' + param.data[3] + '<br>' +
+                '规格&nbsp;&nbsp;&nbsp;&nbsp;：' + param.data[4] + '<br>' +
+                '供货价：¥' + param.data[0] + '<br>' +
+                '指导价：¥' + param.data[1]+'</div>'
+          },
         },
         legend: {
-          right: '10%',
-          top: '3%',
+          right: '3%',
+          // top: '0%',
           data: types
         },
-        grid: {
-          left: '8%',
-          top: '10%'
-        },
+        /* grid: {
+           left: '8%',
+           top: '10%'
+         },*/
         xAxis: {
-          splitLine: {
-            lineStyle: {
-              type: 'dashed'
-            }
-          }
+          name:'供货价',
+           splitLine: {
+             show:false
+           }
         },
         yAxis: {
+          name:'指导价',
           splitLine: {
-            lineStyle: {
-              type: 'dashed'
-            }
-          },
-          scale: true
+            show:false
+          }
         },
         series: []
       }
-      for (let i = 0; i < data.length; i++) {
+      for(let i=0;i<types.length;i++) {
         option.series.push({
           name: types[i],
           data: data[i],
           type: 'scatter',
-          symbolSize: function (data) {
-            return Math.sqrt(data[2])
-          },
-          emphasis: {
-            focus: 'series',
-            label: {
-              show: true,
-              formatter: function (param) {
-                return '药名：' + param.data[0] + '<br>' +
-                    '剂型：' + param.data[1] + '<br>' +
-                    '规格：' + param.data[2] + '<br>' +
-                    '供货价：' + param.data[3] + '<br>' +
-                    '指导价：' + param.data[4];
-              },
-              position: 'top'
-            }
-          },
+          /*          symbolSize: function (data) {
+                      return Math.sqrt(data[2])
+                    },*/
+          symbolSize: 20,
         })
       }
       return option
@@ -444,26 +465,26 @@ export default {
     flex-wrap: wrap;
     justify-content: space-around;
     @media (max-width: 600px) {
-      .echarts {
+      >div {
         width: 100%;
         height: 60vh;
       }
     }
     @media (min-width: 601px) {
-      :nth-child(1), :nth-child(2) {
+      >div:nth-child(1), >div:nth-child(2) {
         width: 45%;
         height: 40vmax;
         border-radius: 16px;
       }
 
-      :nth-child(3) {
+      >div:nth-child(3) {
         width: 95%;
         height: 40vh;
         border-radius: 16px;
       }
     }
 
-    .echarts {
+    >div {
       /*width: 45%;
       height: 40vh;
       background: #f2f5fa !important;
@@ -472,9 +493,13 @@ export default {
       background: #f2f5fa;
     }
 
-    .echarts > div {
+    >div > div:nth-child(1) {
       width: 100%;
       height: 100%;
+    }
+
+    >div > div:nth-child(2) {
+      height: fit-content !important;
     }
   }
 
