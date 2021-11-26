@@ -1,6 +1,6 @@
 <template>
 <div class="join-us">
-  加入我们
+  <particles-bg color="#ff0000" num=200 type="circle" :bg='true' />
 </div>
 </template>
 

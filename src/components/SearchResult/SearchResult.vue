@@ -70,21 +70,23 @@
         </div>
       </md-step>
       <md-step id="search-result-right" md-label="数据可视化">
-        <div class="fullscreen-wrapper">
+        <md-content :class="{'fullscreen-wrapper':true,
+         'fullscreen-scroll':fullscreen,
+         'md-scrollbar':true}">
           <md-button v-if="!fullscreen" @click="fs">
             <md-icon>fullscreen</md-icon>
           </md-button>
           <div>
-<!--            <v-chart :option.sync="option_sunburst"
-                     autoresize/>
-            <v-chart :option.sync="option_scatter"
-                     autoresize></v-chart>-->
+            <!--            <v-chart :option.sync="option_sunburst"
+                                 autoresize/>
+                        <v-chart :option.sync="option_scatter"
+                                 autoresize></v-chart>-->
             <chart :option.sync="option_sunburst" chart-i-d="0"/>
             <chart :option.sync="option_scatter" chart-i-d="1"/>
             <!--            <v-chart :option="{title:'表格？'}"-->
             <!--                     autoresize></v-chart>-->
           </div>
-        </div>
+        </md-content>
       </md-step>
     </md-steppers>
 
@@ -398,12 +400,12 @@ export default {
         tooltip: {
           backgroundColor: 'rgba(255,255,255,0.7)',
           formatter: function (param) {
-            return '<div style="text-align: left">'+'药名&nbsp;&nbsp;&nbsp;&nbsp;：' + param.data[2] + '<br>' +
+            return '<div style="text-align: left">' + '药名&nbsp;&nbsp;&nbsp;&nbsp;：' + param.data[2] + '<br>' +
                 '产商&nbsp;&nbsp;&nbsp;&nbsp;：' + param.data[5] + '<br>' +
                 '剂型&nbsp;&nbsp;&nbsp;&nbsp;：' + param.data[3] + '<br>' +
                 '规格&nbsp;&nbsp;&nbsp;&nbsp;：' + param.data[4] + '<br>' +
                 '供货价：¥' + param.data[0] + '<br>' +
-                '指导价：¥' + param.data[1]+'</div>'
+                '指导价：¥' + param.data[1] + '</div>'
           },
         },
         legend: {
@@ -416,20 +418,20 @@ export default {
            top: '10%'
          },*/
         xAxis: {
-          name:'供货价',
-           splitLine: {
-             show:false
-           }
+          name: '供货价',
+          splitLine: {
+            show: false
+          }
         },
         yAxis: {
-          name:'指导价',
+          name: '指导价',
           splitLine: {
-            show:false
+            show: false
           }
         },
         series: []
       }
-      for(let i=0;i<types.length;i++) {
+      for (let i = 0; i < types.length; i++) {
         option.series.push({
           name: types[i],
           data: data[i],
@@ -447,6 +449,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.fullscreen-scroll{
+  overflow: auto;
+}
 .fullscreen-wrapper {
   padding: 20px;
   background: white !important;
@@ -465,26 +470,26 @@ export default {
     flex-wrap: wrap;
     justify-content: space-around;
     @media (max-width: 600px) {
-      >div {
+      > div {
         width: 100%;
         height: 60vh;
       }
     }
     @media (min-width: 601px) {
-      >div:nth-child(1), >div:nth-child(2) {
+      > div:nth-child(1), > div:nth-child(2) {
         width: 45%;
         height: 40vmax;
         border-radius: 16px;
       }
 
-      >div:nth-child(3) {
+      > div:nth-child(3) {
         width: 95%;
         height: 40vh;
         border-radius: 16px;
       }
     }
 
-    >div {
+    > div {
       /*width: 45%;
       height: 40vh;
       background: #f2f5fa !important;
@@ -493,12 +498,12 @@ export default {
       background: #f2f5fa;
     }
 
-    >div > div:nth-child(1) {
+    > div > div:nth-child(1) {
       width: 100%;
       height: 100%;
     }
 
-    >div > div:nth-child(2) {
+    > div > div:nth-child(2) {
       height: fit-content !important;
     }
   }
@@ -547,7 +552,6 @@ export default {
       align-items: center;
     }
   }
-
 
 }
 

@@ -15,6 +15,7 @@
       </template>
       <iframe :src="html" v-else></iframe>
     </md-dialog>
+
   </md-content>
 </template>
 
@@ -90,7 +91,8 @@ export default {
         pre + '天猫奥美拉唑肠溶片.html',
         pre + '天猫拜阿司匹林.html',
         pre + '天猫阿莫西林胶囊.html',
-        pre + '天猫雷尼替丁胶囊.html'
+        pre + '天猫雷尼替丁胶囊.html',
+        pre + '两公司药品的成本与售价对比.html'
       ],
       option: {},
       data: null,

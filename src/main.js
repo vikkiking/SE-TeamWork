@@ -13,6 +13,7 @@ import {use} from 'echarts/core'
 import {CanvasRenderer} from 'echarts/renderers'
 import {LineChart,SunburstChart,ScatterChart,MapChart} from 'echarts/charts'
 import {GridComponent, TooltipComponent} from 'echarts/components'
+import VueParticlesBg from "particles-bg-vue";
 // import VueFullscreen from "vue-fullscreen";
 use([
     CanvasRenderer,
@@ -25,7 +26,7 @@ use([
 ]);
 Vue.component('v-chart', ECharts)
 
-Vue.use(VueMaterial, VueCompositionAPI)
+Vue.use(VueMaterial,VueParticlesBg, VueCompositionAPI)
 Vue.use(VueLazyload,{
     loading:'/loading.gif',
     error:'/loading.gif',

@@ -1,64 +1,23 @@
 <template>
   <div id="app">
-    <md-app md-waterfall md-mode="fixed-last">
+    <md-app md-waterfall md-mode="fixed">
       <md-app-toolbar class="md-large md-dense md-primary">
         <!--        <div class="md-toolbar-row">-->
         <div class="md-toolbar-section-start">
           <img src="logo.png" height="32" width="32"
                style="margin:0 30px">
+
+        </div>
+        <div class="md-toolbar-section-end">
           <md-tabs class="md-primary" md-sync-route>
             <md-tab id="tab-home" md-label="首页" to="/" exact></md-tab>
-            <md-tab id="tab-samples" md-label="示例" to="/sample" exact></md-tab>
+            <md-tab id="tab-samples" md-label="历史价格" to="/sample" exact></md-tab>
             <md-tab id="tab-about" md-label="关于" href="//yuneko.me/about"></md-tab>
             <md-tab id="tab-joinus" md-label="加入我们" to="/joinus"></md-tab>
           </md-tabs>
         </div>
-        <!--        <div class="md-toolbar-section-end">
-                  <md-button class="md-icon-button"
-                             style="margin-right: 10px"
-                             @mouseover="showSidepanel = true">
-                    <md-icon class="md-size-2x">account_circle</md-icon>
-                  </md-button>
-
-                  &lt;!&ndash;          <md-speed-dial class="md-right" md-direction="bottom">
-                              <md-speed-dial-target class="md-primary">
-                                <md-icon>account_circle</md-icon>
-                              </md-speed-dial-target>
-
-                                <md-speed-dial-content>
-                                  <md-button class="md-list-action" to="/login">微信登录</md-button>
-                                </md-speed-dial-content>
-                                <md-speed-dial-content>
-                                  <md-button class="md-list-action">设置</md-button>
-                                </md-speed-dial-content>
-                                <md-speed-dial-content>
-                                  <md-button class="md-list-action">退出</md-button>
-                                </md-speed-dial-content>
-                            </md-speed-dial>&ndash;&gt;
-                </div>-->
-        <!--        </div>-->
 
       </md-app-toolbar>
-
-
-      <md-app-drawer class="md-right" :md-active.sync="showSidepanel">
-        <md-toolbar class="md-transparent" md-elevation="0">
-          <span class="md-title">我的</span>
-        </md-toolbar>
-
-        <md-list md-sync-route>
-          <md-list-item>
-            <md-button class="md-list-action" to="/login">微信登录</md-button>
-          </md-list-item>
-          <md-list-item>
-            <md-button class="md-list-action">设置</md-button>
-          </md-list-item>
-          <md-list-item>
-            <md-button class="md-list-action">退出</md-button>
-          </md-list-item>
-        </md-list>
-      </md-app-drawer>
-
 
       <md-app-content>
         <md-snackbar md-position="center"
@@ -67,15 +26,7 @@
                      md-persistent>请输入关键词！
         </md-snackbar>
         <div class="md-toolbar-row search">
-          <!--            <div class="md-toolbar-section-start">-->
-          <!--            <md-autocomplete v-if="load"
-                                       v-model="selectedWord"
-                                       md-layout="box"
-                                       :md-options.sync="keywords">
-                        <label>搜索...</label>
-                      </md-autocomplete>-->
-          <md-field md-inline md-clearable
-          >
+          <md-field md-inline md-clearable >
             <label>搜索...</label>
             <md-input v-model="selectedWord"
                       @keyup.enter="search(selectedWord)"></md-input>
@@ -88,11 +39,13 @@
         </div>
         <router-view></router-view>
       </md-app-content>
+
     </md-app>
   </div>
 </template>
 
 <script>
+
 export default {
   name: 'App',
   data() {
@@ -167,7 +120,7 @@ body {
 }
 
 .md-app {
-  background-color: #f8f9fa;
+  //background-color: #f8f9fa;
 
   height: 100vh;
   border: 1px solid rgba(#000, .12);
