@@ -1,17 +1,17 @@
 import axios from "axios";
 
-axios.defaults.timeout = 5000
+axios.defaults.timeout = 20000
 
 function getDrugs(cur, limit, params) {
-    return axios.get('http://47.111.186.107:9000/ruangong/drug/data/obscure/' + (cur ? cur : 1) + '/' + limit, {params: params})
+    return axios.get('//yuneko.me/api/drug/data/obscure/' + (cur ? cur : 1) + '/' + limit, {params: params})
 }
 
 function getDetailByID(id) {
-    return axios.get('http://47.111.186.107:9000/ruangong/drug/' + id)
+    return axios.get('//yuneko.me/api/drug/' + id)
 }
 
 function getListByName(params) {
-    return axios.get('http://47.111.186.107:9000/ruangong/medicine/data/title', {
+    return axios.get('//yuneko.me/api/medicine/data/title', {
         params: params
     })
 }

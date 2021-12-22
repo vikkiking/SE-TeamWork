@@ -1,7 +1,7 @@
 <template>
   <div :id="'fullscreen-chart-'+chartID">
 
-    <v-chart :option.sync="option"
+    <v-chart :option.sync="option" :updateOptions="true"
              autoresize/>
     <md-button @click="fs">
       <md-icon v-if="!fullscreen">fullscreen</md-icon>
@@ -44,6 +44,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
+x-vue-echarts{
+  display: block;
+  width: 100%!important;
+  height: 100%!important;
+}
 /*background: white !important;*/
 </style>

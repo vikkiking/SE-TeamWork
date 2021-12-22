@@ -9,11 +9,14 @@ import VueCompositionAPI from '@vue/composition-api'
 import VueLazyload from "vue-lazyload";
 import ECharts from 'vue-echarts'
 import {use} from 'echarts/core'
+// import {WordCloudChart} from 'dr-vue-echarts'
+// import {WordCloudChart} from "dr-vue-echarts";
 // 手动引入 ECharts 各模块来减小打包体积
 import {CanvasRenderer} from 'echarts/renderers'
 import {LineChart,SunburstChart,ScatterChart,MapChart} from 'echarts/charts'
 import {GridComponent, TooltipComponent} from 'echarts/components'
 import VueParticlesBg from "particles-bg-vue";
+// import WordCloud from "dr-vue-echarts/packages/word-cloud";
 // import VueFullscreen from "vue-fullscreen";
 use([
     CanvasRenderer,
@@ -22,10 +25,10 @@ use([
     MapChart,
     ScatterChart,
     GridComponent,
-    TooltipComponent
+    TooltipComponent,
 ]);
 Vue.component('v-chart', ECharts)
-
+// Vue.component('word-cloud',WordCloud)
 Vue.use(VueMaterial,VueParticlesBg, VueCompositionAPI)
 Vue.use(VueLazyload,{
     loading:'/loading.gif',

@@ -1,11 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from "../components/Home";
+import Home from "../components/Home/Home";
 import JoinUs from "../components/JoinUs";
-import Login from "../components/Login";
-import SearchResult from "../components/SearchResult/SearchResult";
-import Detail from "../components/Detail";
-import Sample from "../components/Samples/Samples";
+import SearchResult from "../components/SearchResult/SearchResult";//应当保留
+import Samples from "../components/Samples/Samples";//不应当保留
 
 Vue.use(VueRouter)
 const routes = [
@@ -16,18 +14,12 @@ const routes = [
     {
         path: '/joinus',
         component: JoinUs
-    }, {
-        path: '/login',
-        component: Login
-    }, {
+    },{
         path: '/search',
         component: SearchResult
     }, {
-        path: '/detail',
-        component: Detail
-    }, {
         path: '/sample',
-        component: Sample
+        component: Samples
     }
 ]
 const router = new VueRouter({

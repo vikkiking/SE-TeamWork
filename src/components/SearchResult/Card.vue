@@ -1,8 +1,8 @@
 <template>
-  <md-card class="search-card" @click.native="checkDetail(data.id)">
+  <md-card class="search-card">
     <md-card-area md-inset>
       <md-card-media>
-        <img :src="data.cover" :alt="data.drugTitle" >
+        <img :src="data.cover" :alt="data.drugTitle">
       </md-card-media>
       <md-card-header>
         <div class="md-subhead">
@@ -10,8 +10,9 @@
         </div>
       </md-card-header>
       <md-card-content>
-        <div>¥{{ data.price }}</div>
-        <div>{{ data.specification }}</div>
+        <div> &nbsp;&nbsp;规格： <span>{{ data.specification }}</span>
+          <span> &nbsp;&nbsp;¥{{ data.price }}</span>
+        </div>
         <!--        <div>{{ data.type }}</div>-->
       </md-card-content>
     </md-card-area>
@@ -24,18 +25,6 @@ export default {
   props: {
     img: String,
     data: Object
-  },
-  created() {
-
-  },
-  methods: {
-    checkDetail(id) {
-      this.$router.push({
-        path: '/detail', query: {
-          id: id
-        }
-      })
-    }
   }
 }
 </script>
@@ -43,20 +32,28 @@ export default {
 <style scoped lang="scss">
 @media(min-width: 601px) {
   .search-card {
-    width: 150px;
+    max-width: 300px;
+height:283px;
+    :hover {
+      cursor: pointer;
+    }
 
     .md-subhead {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-img{
-  width: 100%;
-  height: 150px;
-}
+
+    img {
+      //width: 100%;
+      width: auto;
+      max-height: 150px;
+    }
+
     margin-bottom: 20px;
   }
 }
+
 @media(max-width: 600px) {
   .search-card {
     width: 80%;
@@ -65,13 +62,41 @@ img{
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: black !important;
     }
-img{
-  width: 100%;
-  height: auto;
-}
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+
     margin-bottom: 20px;
   }
 
+}
+
+.md-subhead {
+  color: black;
+  font-weight: bold;
+}
+
+.md-card-header {
+  border-bottom: dotted 1px #cecece;
+}
+
+.md-card-content {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 1em !important;
+  padding-bottom: 1em !important;
+
+  > div {
+    color: #888888;
+  }
+
+  > div > span {
+    color: #47b383;
+  }
 }
 </style>

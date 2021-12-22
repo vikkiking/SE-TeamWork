@@ -1,6 +1,6 @@
 <template>
   <div class="search-result">
-    <md-steppers>
+    <md-steppers v-if="$route.query.mode===mode[0]">
       <md-step id="search-result-left" md-label="搜索结果">
         <div>
           <md-progress-spinner v-if="loading"
@@ -51,7 +51,11 @@
                 <card v-for="(item, i) in getList"
                       :key="i"
                       img="/temp.jpeg"
+                      @click.native="checkDetail(item.id)"
                       :data="item"/>
+                <md-dialog :md-active.sync="showDialog">
+                  <detail :id.sync="cur"/>
+                </md-dialog>
               </template>
 
             </md-content>
@@ -89,7 +93,12 @@
         </md-content>
       </md-step>
     </md-steppers>
-
+    <div v-else-if="$route.query.mode===mode[1]">
+      <div class="error-emoji">(≥o≤)</div>
+      <div class="error-text">
+        <div></div>
+        <p class="ng-star-inserted"> 功能暂未开放</p></div>
+    </div>
   </div>
 </template>
 
@@ -99,13 +108,17 @@ import Card from "./Card";
 import {getData, getDrugs} from "../../api";
 import {api as fullscreen} from 'vue-fullscreen'
 import Chart from "./Chart";
+import Detail from "../Detail";
 
 export default {
   name: "SearchResult",
-  components: {Chart, Card},
+  components: {Detail, Chart, Card},
   data() {
     return {
+      cur: null,
+      showDialog: false,
       fullscreen: false,
+      mode: [encodeURI('药品'), encodeURI('药企')],
       teleport: true,
       inputPage: 1,
       option_sunburst: {},
@@ -144,8 +157,7 @@ export default {
         this.badnet = false
         getDrugs(this.page.cur, this.page.size, {title: decodeURI(newV.query.q)}).then(res => {
           res = res.data.data
-          this.search_result.data = res.drugs
-          this.search_result.data = this.search_result.data.map(v => {
+          this.search_result.data = res.drugs.map(v => {
             v.specification = v.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g) !== null ? v.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g).pop() : (v.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g) ? v.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g).pop() : '暂无规格')
             return v
           })
@@ -164,6 +176,7 @@ export default {
           path: '/search',
           query: {
             q: this.$route.query.q,
+            mode: this.$route.query.mode,
             page: newV.cur
           }
         })
@@ -190,6 +203,7 @@ export default {
       this.search_result.data = res.drugs
       this.search_result.data = this.search_result.data.map(v => {
         v.specification = v.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g) !== null ? v.drugTitle.match(/[0-9.]+(\D+\*\d+.|.)\/./g).pop() : (v.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g) ? v.drugTitle.match(/[0-9.]+[a-zA-Z]+\*\d+\D/g).pop() : '暂无规格')
+        v.drugTitle = v.drugTitle.replace(/.*】(.+?)\d+.*/g, '$1') !== '' ? v.drugTitle.replace(/.*】(.+?)\d+.*/g, '$1') : (v.drugTitle.match(/(.+?)\d/g) !== null ? v.drugTitle.match(/(.+?)\d/g)[0] : v.drugTitle)
         return v
       })
       this.page.maxPage = res.pages
@@ -199,12 +213,27 @@ export default {
       })))
       this.loading = false
     }).catch(() => {
+      /* this.search_result.data = [{
+         id: 123,
+         drugTitle: '甲巯咪唑',
+         price: 56.12,
+         specification: '12g*50',
+         seller: 'https://tb.com',
+         cover: '/logo.png',
+         type: '淘宝',
+         originUrl: 'https://tb.com'
+       }]*/
       this.loading = false
+      // if (this.search_result.data.length === 0)
       this.badnet = true
     })
     this.openChart()
   },
   methods: {
+    checkDetail(id) {
+      this.cur = id
+      this.showDialog = true
+    },
     async fs() {
       await fullscreen.toggle(this.$el.querySelector('.fullscreen-wrapper'), {
         teleport: this.teleport,
@@ -233,33 +262,44 @@ export default {
       return str
     },
     openChart() {
-      this.option_sunburst = {
+      this.option_sunburst = Object.assign({}, this.option_sunburst, {
         title: {
           text: '加载中...'
-        }
-      }
-      this.option_scatter = {
+        },
+      })
+      this.option_scatter = Object.assign({}, this.option_scatter, {
         title: {
           text: '加载中...'
-        }
-      }
+        },
+      })
       getData({name: decodeURI(this.$route.query.q)}).then(res => {
         res = res.data.data.drugs
         if (res.length > 0) {
           this.option_sunburst = Object.assign({}, this.option_sunburst, this.createSunburst(res))
           this.option_scatter = Object.assign({}, this.option_scatter, this.createScatter(res))
         } else {
-          this.option_sunburst = {
+          this.option_sunburst = Object.assign({}, this.option_sunburst, {
             title: {
               text: '暂无' + decodeURI(this.$route.query.q) + '价格信息'
-            }
-          }
-          this.option_scatter = {
+            },
+          })
+          this.option_scatter = Object.assign({}, this.option_sunburst, {
             title: {
               text: '暂无' + decodeURI(this.$route.query.q) + '价格信息'
-            }
-          }
+            },
+          })
         }
+      }).catch(() => {
+        this.option_sunburst = Object.assign({}, this.option_sunburst, {
+          title: {
+            text: '网络开小差了~'
+          },
+        })
+        this.option_scatter = Object.assign({}, this.option_scatter, {
+          title: {
+            text: '网络开小差了~'
+          },
+        })
       })
     },
     // eslint-disable-next-line no-unused-vars
@@ -449,9 +489,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.fullscreen-scroll{
+.fullscreen-scroll {
   overflow: auto;
 }
+
 .fullscreen-wrapper {
   padding: 20px;
   background: white !important;
@@ -555,5 +596,29 @@ export default {
 
 }
 
-
+.error-emoji {
+  letter-spacing: normal;
+  text-align: center;
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: baseline;
+  color: #dadce0;
+  font: 200px/1.25 Google Sans, Helvetica Neue, sans-serif;
+  margin-bottom: 24px;
+}
+.error-text{
+  color: #3c4043;
+  text-align: center;
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: baseline;
+  font: 400 24px/32px Google Sans,-apple-system,BlinkMacSystemFont,sans-serif;
+  letter-spacing: normal;
+  margin-bottom: 24px;
+  white-space: pre-wrap;
+}
 </style>

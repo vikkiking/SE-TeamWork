@@ -4,9 +4,13 @@
       <md-app-toolbar class="md-large md-dense md-primary">
         <!--        <div class="md-toolbar-row">-->
         <div class="md-toolbar-section-start">
-          <img src="logo.png" height="32" width="32"
-               style="margin:0 30px">
-
+                    <img src="logo.png" height="32" width="32"
+                         style="margin:0 30px">
+<!--          <div class="site-config-wrap">
+            <div class="animated">
+              <h2 class="site-title">Pharmacy</h2>
+            </div>
+          </div>-->
         </div>
         <div class="md-toolbar-section-end">
           <md-tabs class="md-primary" md-sync-route>
@@ -26,10 +30,15 @@
                      md-persistent>请输入关键词！
         </md-snackbar>
         <div class="md-toolbar-row search">
-          <md-field md-inline md-clearable >
+          <md-field md-inline md-clearable>
             <label>搜索...</label>
             <md-input v-model="selectedWord"
                       @keyup.enter="search(selectedWord)"></md-input>
+          </md-field>
+          <md-field style="margin-left: 20px" class="md-small-size-20 md-layout-item">
+            <md-select v-model="selectMode" name="search-mode" id="search-mode">
+              <md-option :value="item" :key="i" v-for="(item ,i) in searchMode">{{ item }}</md-option>
+            </md-select>
           </md-field>
           <!--            </div>-->
           <md-button class="md-icon-button"
@@ -37,7 +46,9 @@
             <md-icon>search</md-icon>
           </md-button>
         </div>
-        <router-view></router-view>
+        <router-view>
+        </router-view>
+
       </md-app-content>
 
     </md-app>
@@ -55,7 +66,9 @@ export default {
       showSidepanel: false,
       selectedWord: null,
       keywords: [],
-      active: false
+      active: false,
+      searchMode: ['药品', '药企'],
+      selectMode: null
     }
   },
   watch: {
@@ -69,10 +82,11 @@ export default {
     }
   },
   created() {
-    window.onload = () => {
-      this.load = true
-    }
-    this.keywords = JSON.parse(localStorage.getItem('search-history'))
+    this.selectMode = this.searchMode[0]
+    /* window.onload = () => {
+       this.load = true
+     }
+     this.keywords = JSON.parse(localStorage.getItem('search-history'))*/
     if (this.$route.query.q)
       this.selectedWord = decodeURI(this.$route.query.q)
     else this.selectedWord = ''
@@ -90,6 +104,7 @@ export default {
           path: '/search',
           query: {
             q: encodeURI(q),
+            mode: encodeURI(this.selectMode),
             page: 1
           }
         })

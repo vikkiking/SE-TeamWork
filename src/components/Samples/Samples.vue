@@ -21,12 +21,13 @@
 
 <script>
 import Thumb from "./Thumb";
+// import html2canvas from 'html2canvas'
 import {use} from "echarts/core";
 import {CanvasRenderer} from "echarts/renderers";
 import {PieChart, SunburstChart} from "echarts/charts";
 import {LegendComponent, TitleComponent, TooltipComponent} from "echarts/components";
-import VChart, {THEME_KEY} from "vue-echarts";
-import html2canvas from 'html2canvas'
+import VChart from "vue-echarts";
+
 
 use([
   CanvasRenderer,
@@ -37,23 +38,15 @@ use([
   LegendComponent
 ]);
 
-// eslint-disable-next-line no-unused-vars
-function getRandomColor() {
-  return '#' + (function temp(color) {
-    return (color += '0123456789abcdef'[Math.floor(Math.random() * 16)])
-    && (color.length === 6) ? color : temp(color);
-  })('');
-}
-
-let pre = 'http://yuneko.me/temp/'
+let pre = '//yuneko.me/temp/'
 // let pre = '/temp/'
 export default {
-  name: "Sample",
+  name: "Samples",
   // eslint-disable-next-line vue/no-unused-components
   components: {Thumb, VChart},
-  provide: {
+  /*provide: {
     [THEME_KEY]: "dark"
-  },
+  },*/
   data() {
     return {
       html: null,
@@ -65,12 +58,12 @@ export default {
         pre + '三九感冒灵.html',
         pre + '乐宁盐酸雷尼替丁胶囊150mg30粒.html',
         pre + '九芝堂六味地黄地丸360丸.html',
-        pre + '云南白药气雾剂 85g+30g .html',
-        pre + '京都念慈菴蜜炼川贝枇杷膏300ml .html',
+        pre + '云南白药气雾剂 85g+30g.html',
+        pre + '京都念慈菴蜜炼川贝枇杷膏300ml.html',
         pre + '仁和 桑菊感冒片 36片.html',
         pre + '仁和诺氟沙星胶囊0.1g24粒.html',
         pre + '仁和阿莫西林胶囊0.25g40粒.html',
-        pre + '喇叭正露丸100粒 .html',
+        pre + '喇叭正露丸100粒.html',
         pre + '太极藿香正气液口服液正气水10支装合剂.html',
         pre + '康恩贝肠炎宁48片胃药急慢性肠胃炎.html',
         pre + '拜阿司匹灵阿司匹林肠溶片100mg.html',
@@ -92,7 +85,11 @@ export default {
         pre + '天猫拜阿司匹林.html',
         pre + '天猫阿莫西林胶囊.html',
         pre + '天猫雷尼替丁胶囊.html',
-        pre + '两公司药品的成本与售价对比.html'
+        pre + '湖南两公司药品的成本与售价对比1.html',
+        pre + '湖南两公司药品的成本与售价对比2.html',
+        pre + '江苏两公司药品的成本与售价对比.html',
+        pre + '上海两公司药品的成本与售价对比.html',
+        pre + '福建两公司药品的成本与售价对比.html'
       ],
       option: {},
       data: null,
@@ -100,14 +97,17 @@ export default {
     }
   },
   created() {
+    let title
     for (let i = 0; i < this.paths.length; i++) {
-      this.list.push({
-        title: /*'折线图' + (i + 1)*/this.paths[i].match(/(?<=\/)[^/]+(?=(.html))/g)[0],
+      title=this.paths[i].split('/').pop().split('.')[0]
+      this.$set(this.list, i, {
+        title:title,
         type: 'html',
-        path: this.paths[i]
+        path: this.paths[i],
+        url: pre+title+'.png'
       })
     }
-    for (let i = 0; i < this.paths.length; i++) {
+    /*for (let i = 0; i < this.paths.length; i++) {
       let ttt = this.createHtml(this.paths[i])
       ttt.onload = () => {
         setTimeout(() => {
@@ -121,12 +121,7 @@ export default {
         }, 2000)
       }
       document.body.appendChild(ttt)
-    }
-    /*this.list.push({
-      url: /!*document.getElementById('chart').getElementsByTagName('canvas')[0].toDataURL('image/png')*!/'https://cdn.glitch.com/d7f4f279-e13b-4330-8422-00b2d9211424%2FGlitch-Error-Rainbow-Mug-hires.png?v=1595481653593',
-      title: '二甲双胍市场价与供货价比值分布',
-      type: 'sunburst'
-    })*/
+    }*/
 
   },
   methods: {
